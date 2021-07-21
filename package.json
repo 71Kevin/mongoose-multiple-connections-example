@@ -1,0 +1,24 @@
+{
+  "name": "mongoose-multiple-connections-example",
+  "version": "1.0.0",
+  "description": "",
+  "main": "mongoose-multiple-connections-example.js",
+  "scripts": {
+    "start": "node mongoose-multiple-connections-example.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "graygelf": "^2.0.0",
+    "lodash": "^4.17.21",
+    "moment-timezone": "^0.5.27",
+    "mongoose": "^5.8.9",
+    "node-cron": "^3.0.0",
+    "uuid": "^3.4.0",
+    "winston": "^3.2.1"
+  },
+  "devDependencies": {}
+}
