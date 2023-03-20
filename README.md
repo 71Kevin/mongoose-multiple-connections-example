@@ -22,7 +22,7 @@ This is an example of how to perform multiple simultaneous connections using the
 
 ## Deployment
 
-This project includes a shell script deploy.sh to automate deployment using Docker. The script builds a Docker image and runs a container with the application.
+This project includes a shell script shell.bash to automate deployment using Docker. The script builds a Docker image and runs a container with the application.
 
 To deploy the application, follow these steps:
 
