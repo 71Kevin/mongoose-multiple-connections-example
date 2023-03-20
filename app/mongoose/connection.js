@@ -1,31 +1,45 @@
 const mongoose = require('mongoose');
+const logger = require('../lib/logger');
 
-function makeNewConnection(uri) {
-    const db = mongoose.createConnection(uri, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
+function makeNewConnection(uri, name) {
+  const db = mongoose.createConnection(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
+
+  db.on('error', (error) => {
+    logger.error(`MongoDB :: connection ${name} ${JSON.stringify(error)}`);
+    db.close().catch(() => {
+      logger.error(`MongoDB :: failed to close connection ${name}`);
     });
-    
-    db.on('error', function (error) {
-        console.log(`MongoDB :: connection ${this.name} ${JSON.stringify(error)}`);
-        db.close().catch(() => console.log(`MongoDB :: failed to close connection ${this.name}`));
-    });
-    
-    db.on('connected', function () {
-        console.log(`MongoDB :: connected ${this.name}`);
-    });
-    
-    db.on('disconnected', function () {
-        console.log(`MongoDB :: disconnected ${this.name}`);
-    });
-    
-    return db;
+  });
+
+  db.on('connected', () => {
+    logger.info(`MongoDB :: connected ${name}`);
+  });
+
+  db.on('disconnected', () => {
+    logger.info(`MongoDB :: disconnected ${name}`);
+  });
+
+  return db;
 }
 
-const userConnection = makeNewConnection(`mongodb://127.0.0.1:27017/myDB1`);
-const todoConnection = makeNewConnection(`mongodb://127.0.0.1:27017/myDB2`);
+const userConnection = makeNewConnection(
+  'mongodb://127.0.0.1:27017/myDB1',
+  'userConnection'
+);
+const todoConnection = makeNewConnection(
+  'mongodb://127.0.0.1:27017/myDB2',
+  'todoConnection'
+);
+
+if (!userConnection || !todoConnection) {
+  logger.error('Failed to connect to MongoDB');
+  process.exit(1);
+}
 
 module.exports = {
-    userConnection,
-    todoConnection,
+  userConnection,
+  todoConnection,
 };

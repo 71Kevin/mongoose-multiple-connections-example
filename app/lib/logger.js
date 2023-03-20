@@ -1,32 +1,27 @@
-const winston = require("winston");
-const moment = require("moment-timezone");
-const _ = require("lodash");
-
+const winston = require('winston');
 const graylog = require('graygelf')({
   host: process.env.GRAYLOG_HOST,
-  port: process.env.GRAYLOG_PORT
+  port: process.env.GRAYLOG_PORT,
 });
 
 const customFormat = winston.format.combine(
   winston.format.colorize(),
   winston.format.timestamp(),
   winston.format.simple(),
-  winston.format.printf(info => {
-    const { timestamp, level, message } = info;
-
-    const ts = moment()
-      .tz("America/Sao_Paulo")
-      .format("YYYY/MM/DD HH:mm:ss.SSS");
-    return `${ts} [${level}]: ${message}`;
+  winston.format.printf((info) => {
+    const ts = new Date().toLocaleString('en-US', {
+      timeZone: 'America/Sao_Paulo',
+    });
+    return `${ts} [${info.level}]: ${info.message}`;
   })
 );
 
 const winstonLogger = winston.createLogger({
   transports: [
     new winston.transports.Console({
-      format: customFormat
-    })
-  ]
+      format: customFormat,
+    }),
+  ],
 });
 
 graylog.fields.facility = 'mongoose-multiple-connections-example';
@@ -50,20 +45,19 @@ const logger = {
   },
   graylog: (message, args) => {
     try {
-        if (process.env.GRAYLOG_ENABLED === 'yes') {
-            let composed = {};
-            _.each(args, (arg) => {
-                if (_.isObject(arg)){
-                    _.merge(composed, arg)
-                }
-            });
-
-           graylog.info.a(message, message, composed);
-        }    
+      if (process.env.GRAYLOG_ENABLED === 'yes') {
+        let composed = {};
+        args.forEach((arg) => {
+          if (typeof arg === 'object') {
+            Object.assign(composed, arg);
+          }
+        });
+        graylog.info.a(message, message, composed);
+      }
     } catch (err) {
-        console.log(err);
+      console.error(`Failed to log to graylog: ${err}`);
     }
-  }
+  },
 };
 
 module.exports = logger;
